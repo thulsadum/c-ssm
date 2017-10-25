@@ -1,8 +1,17 @@
 %{
      #include "ssm.tab.h"
+
 %}
 
+			
+			
 %x STRING
+
+ALPHA    [a-zA-Z]
+PUNCT    [.,!?\-_]
+NUMERIC  [0-9]
+
+ID       ({ALPHA}|{PUNCT})({ALPHA}|{PUNCT}|{NUMERIC})*
 
 %%
 
@@ -17,6 +26,7 @@
 
  /* operations */
 "push"        return T_PUSH;
+"dup"         return T_DUP;
 "drop"        return T_DROP;
 "swap"        return T_SWAP;
 "rot"         return T_ROT;
@@ -50,6 +60,12 @@
 "when"        return T_WHEN;
 "unless"      return T_UNLESS;
 
+    /* data keywords */
+"equ"         return T_EQU;
+"res"         return T_RES;
+
+    /* string handling */
+
 \"          { /* begin string */
      psbuf = sbuf; BEGIN(STRING);
             }
@@ -70,3 +86,22 @@
 <STRING>\\(.|\n)    *psbuf++ = yytext[1];
 
 <STRING>[^\"]    *psbuf++ = *yytext;
+
+     /* number handling */
+[0-9]+    {
+            yylval.T_LIT_NUMBER = atoi( yytext );
+	    return T_LIT_NUMBER;
+          }
+
+    /* identifier */
+ID    {
+         yylval.T_IDENTIFIER = strdup( yytext );
+	 return T_IDENTIFIER;
+      }
+
+    /* comments */
+"#".*  /* eat */
+";".*  /* eat */
+
+    /* white spaces */
+[ \n\t\r\f]+   /* eat */
