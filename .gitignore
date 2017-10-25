@@ -1,0 +1,5 @@
+lex.yy.c
+ssm.tab.c
+ssm.tab.h
+*.o
+*~
