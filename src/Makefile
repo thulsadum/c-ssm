@@ -23,3 +23,7 @@ ssm-parser.c: ssm-parser.y
 ssm-parser.tab.h: | ssm-parser.c
 ssm-lexer.c : | ssm-parser.tab.h
 
+clean:
+	-rm ssm
+	-rm ssm-{lexer,parser}.c ssm-parser.tab.h
+	-rm $(OBJECTFILES)
