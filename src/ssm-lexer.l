@@ -1,5 +1,5 @@
 %{
-     #include "ssm.tab.h"
+     #include "ssm-parser.tab.h"
 
 %}
 

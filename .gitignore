@@ -56,3 +56,7 @@ dkms.conf
 lex.yy.c
 ssm.tab.c
 ssm.tab.h
+src/ssm
+src/ssm-lexer.c
+src/ssm-parser.c
+*.tab.h

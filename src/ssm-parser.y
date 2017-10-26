@@ -29,40 +29,40 @@ prog :
      | segment prog
      ;
 
-segment :       data-segment
-	|	text-segment
-	|	code-segment
+segment :       data_segment
+	|	text_segment
+	|	code_segment
         ;
 
 
 
-text-segment : SEG_TEXT text-definitions ;
+text_segment : SEG_TEXT text_definitions ;
 
-text-definitions : %empty
-	|	text-definition text-definitions
+text_definitions : %empty
+	|	text_definition text_definitions
         ;
 
-text-definition : LIT_STRING
+text_definition : LIT_STRING
 	|	IDENTIFIER LIT_STRING
         ;
 
 
 
-data-segment : SEG_DATA data-definitions ;
+data_segment : SEG_DATA data_definitions ;
 
-data-definitions : %empty
-	|	data-definition data-definitions
+data_definitions : %empty
+	|	data_definition data_definitions
         ;
 
-data-definition : data-decl
-	|	data-alloc
+data_definition : data_decl
+	|	data_alloc
         ;
 
-data-decl : EQU numbers
+data_decl : EQU numbers
 	|	IDENTIFIER EQU numbers
         ;
 
-data-alloc : RES LIT_NUMBER
+data_alloc : RES LIT_NUMBER
 	|	RES LIT_NUMBER LIT_NUMBER
 	|	IDENTIFIER RES LIT_NUMBER
 	|	IDENTIFIER RES LIT_NUMBER LIT_NUMBER
@@ -74,22 +74,22 @@ numbers : LIT_NUMBER
 
 
 
-code-segment : SEG_CODE instructions ;
+code_segment : SEG_CODE instructions ;
 
 instructions : %empty
 	|	instructions instruction
         ;
 
-instruction : stack-operation
-	|	io-operation
-	|	memory-operation
-	|	arithmetic-logic-operation
-	|	branching-operation
+instruction : stack_operation
+	|	io_operation
+	|	memory_operation
+	|	arithmetic_logic_operation
+	|	branching_operation
 	|	IDENTIFIER instruction
         ;
 
 
-stack-operation : PUSH IDENTIFIER
+stack_operation : PUSH IDENTIFIER
 	|	PUSH LIT_NUMBER
 	|	DUP
 	|	DROP
@@ -97,17 +97,17 @@ stack-operation : PUSH IDENTIFIER
 	|	ROT
         ;
 
-io-operation : PUTC
+io_operation : PUTC
 	|	PUTI
 	|	PUTS
 	|	GETC
         ;
 
-memory-operation : LOAD
+memory_operation : LOAD
 	|	STORE
         ;
 
-arithmetic-logic-operation : ADD
+arithmetic_logic_operation : ADD
 	|	SUB
 	|	MUL
 	|	DIV
@@ -123,7 +123,7 @@ arithmetic-logic-operation : ADD
 	|	LT
         ;
 
-branching-operation : JUMP IDENTIFIER
+branching_operation : JUMP IDENTIFIER
 	|	CALL IDENTIFIER
 	|	RETURN
 	|	WHEN
