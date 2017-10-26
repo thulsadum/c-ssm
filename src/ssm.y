@@ -1,5 +1,6 @@
 %{
      #include <stdint.h>
+     #include <stdio.h>
      
      int yylex(void);
      void yyerror(char const *);
@@ -128,3 +129,14 @@ branching-operation : JUMP IDENTIFIER
 	|	WHEN
 	|	UNLESS
         ;
+
+
+
+
+%%
+
+void
+yyerror(char const *msg)
+{
+    fprintf(stderr, "%s\n", msg);
+}
