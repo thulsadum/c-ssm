@@ -1,0 +1,19 @@
+#lang ssm
+SEG TEXT
+  "Type 'q' to exit"
+SEG CODE
+  push 0
+  puts
+  push '\n'
+  putc
+loop
+  getc
+  dup
+  puti
+  push '\n'
+  putc
+  push 'q'
+  sub
+  dup
+  when loop
+  halt
