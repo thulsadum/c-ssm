@@ -60,3 +60,6 @@ src/ssm
 src/ssm-lexer.c
 src/ssm-parser.c
 *.tab.h
+
+test/test_*
+!test/test_*.c

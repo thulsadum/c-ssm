@@ -6,7 +6,7 @@ LEX=flex
 # LFLAGS=
 LDFLAGS=
 
-OBJECTFILES=ssm.o ssm-parser.o ssm-lexer.o
+OBJECTFILES=ssm.o ssm-parser.o ssm-lexer.o segment.o
 
 
 
@@ -27,3 +27,7 @@ clean:
 	-rm ssm
 	-rm ssm-{lexer,parser}.c ssm-parser.tab.h
 	-rm $(OBJECTFILES)
+
+
+.PHONY: compile
+compile: $(OBJECTFILES)
