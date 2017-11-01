@@ -10,6 +10,12 @@ typedef enum {
      ST_CODE
 } Segment_Type;
 
+typedef struct {
+     // TODO
+} Runtime_State_t;
+
+
+typedef void (*Semantic_t)(Runtime_State_t *);
 
 
 typedef struct {
@@ -20,20 +26,20 @@ typedef struct {
 
 
 typedef struct {
-     Segment_t    seg_head;
-     const char *seg_text_data[1];
+     Segment_t seg_head;
+     char     *seg_text_data[1];
 } Segment_Text_t;
 
 
 typedef struct {
-     Segment_t seg_head;
-     int64_t seg_code_data[1];
+     Segment_t  seg_head;
+     Semantic_t seg_code_data[1];
 } Segment_Code_t;
 
 
 typedef struct {
      Segment_t seg_head;
-     int64_t *seg_data_data[1];
+     int64_t   seg_data_data[1];
 } Segment_Data_t;
 
 
@@ -41,21 +47,33 @@ typedef struct {
 Segment_t * new_segment ( size_t payload_size);
 void        del_segment ( Segment_t ** ppSeg );
 #define _del_segment(PPSEG) del_segment( (Segment_t**) PPSEG )
+Segment_t * segment_concat ( Segment_t * pFst, Segment_t * pSnd ); 
+#define _segment_concat(T, PSEG1, PSEG2) \
+     ((T) segment_concat( ((Segment_t*) PSEG1), ((Segment_t*) PSEG2) ))
 
 
 Segment_Text_t * new_segment_text ( size_t i );
-// void del_segment_text ( Segment_Text_t ** ppSeg );
-#define del_segment_text(PPSEG) _del_segment(PPSEG) 
+void del_segment_text ( Segment_Text_t ** ppSeg );
+// #define del_segment_text(PPSEG) _del_segment(PPSEG) 
+int segment_add_text ( Segment_Text_t **ppSeg, const char * text );
+#define segment_text_concat(SEG1, SEG2) \
+     _segment_concat(Segment_Text_t*, SEG1, SEG2)
 
 
 Segment_Data_t * new_segment_data ( size_t i );
 // void del_segment_data ( Segment_Data_t ** ppSeg );
 #define del_segment_data(PPSEG) _del_segment(PPSEG) 
+int segment_add_data ( Segment_Data_t **ppSeg, int64_t data);
+#define segment_data_concat(SEG1, SEG2) \
+     _segment_concat(Segment_Data_t*, SEG1, SEG2)
 
 
 Segment_Code_t * new_segment_code ( size_t i );
 // void del_segment_code ( Segment_Code_t ** ppSeg );
 #define del_segment_code(PPSEG) _del_segment(PPSEG) 
+int segment_add_code ( Segment_Code_t **ppSeg, Semantic_t code);
+#define segment_code_concat(SEG1, SEG2) \
+     _segment_concat(Segment_Code_t*, SEG1, SEG2)
 
 
 /* TODO */

@@ -17,9 +17,9 @@ main( int argc, const char ** argv )
 
      if(result)
      {
-	  printf("%s: Test failed: %s\n", argv[0], result);
+	  printf("%s: Test failed: %s\nRun: %d\n", argv[0], result, tests_run);
      } else {
-	  printf("%s: All tests passed.\n", argv[0]);
+	  printf("%s: All tests passed. Run: %d\n", argv[0], tests_run);
      }
 
      return result != 0;
