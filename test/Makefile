@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-pedantic -Wall
+CFLAGS=-pedantic -Wall -ggdb
 YACC=bison
 YFLAGS=-d
 LEX=flex

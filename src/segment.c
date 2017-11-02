@@ -37,6 +37,21 @@ del_segment ( Segment_t ** ppseg )
 }
 
 
+/** copies a segment to an other one */
+int
+cpy_segment ( Segment_t * dst, const Segment_t * src, size_t noData )
+{
+
+     if( !dst || !src )
+     {
+	  return -1;
+     }
+
+     memcpy( dst, src, sizeof(Segment_t) + noData );
+
+     return 0;
+}
+
 
 Segment_Text_t *
 new_segment_text( size_t init_size )
@@ -76,6 +91,29 @@ del_segment_text( Segment_Text_t **ppSeg )
      }
 
      del_segment( (Segment_t **) ppSeg );
+     
+}
+
+
+int
+cpy_segment_text( Segment_Text_t * dst, const Segment_Text_t * src )
+{
+
+     int ret = cpy_segment( (Segment_t*) dst, (Segment_t*) src, 0 );
+
+     if( ret )
+     {
+	  /* i.e. insane */
+	  return ret;
+     }
+     
+     for(int i = 0; i < src->seg_head.seg_size; i++)
+     {
+	  dst->seg_text_data[i] = strdup( src->seg_text_data[i] );
+     }
+
+
+     return 0;
      
 }
 
@@ -124,8 +162,6 @@ int
 segment_add_text( Segment_Text_t **ppSeg, const char * text )
 {
 
-     // TODO add growth
-
      if( !ppSeg || !(*ppSeg) || !text)
      {
 	  /* insane arguments */
@@ -133,6 +169,24 @@ segment_add_text( Segment_Text_t **ppSeg, const char * text )
 	  return -1;
 
      }
+
+     if( (*ppSeg)->seg_head.seg_size == (*ppSeg)->seg_head.seg_max_size )
+     {
+	  /* grow */
+	  Segment_Text_t *tmpSeg = new_segment_text( (*ppSeg)->seg_head
+						         .seg_max_size << 1 );
+	  if( ! tmpSeg )
+	  {
+	       perror(__func__);
+	       return -1;
+	  }
+	  cpy_segment_text( tmpSeg, *ppSeg );
+	  tmpSeg->seg_head.seg_max_size <<= 1;
+
+	  del_segment_text( ppSeg ); // free resources
+	  
+	  *ppSeg = tmpSeg;
+     }	  
 
      (*ppSeg)->seg_text_data[ (*ppSeg)->seg_head.seg_size ] = strdup( text );
      (*ppSeg)->seg_head.seg_size++;
@@ -152,6 +206,25 @@ segment_add_data( Segment_Data_t **ppSeg, int64_t data )
 	  /* insane */
 	  return -1;
      }
+
+     if( (*ppSeg)->seg_head.seg_size == (*ppSeg)->seg_head.seg_max_size )
+     {
+	  /* grow */
+	  Segment_Data_t *tmpSeg = new_segment_data( (*ppSeg)->seg_head
+						         .seg_max_size << 1 );
+	  if( ! tmpSeg )
+	  {
+	       perror(__func__);
+	       return -1;
+	  }
+	  // FIXME copy screws up data... 
+	  cpy_segment_data( tmpSeg, *ppSeg );
+	  tmpSeg->seg_head.seg_max_size <<= 1;
+
+	  del_segment_data( ppSeg ); // free resources
+	  
+	  *ppSeg = tmpSeg;
+     }	  
 
      (*ppSeg)->seg_data_data[ (*ppSeg)->seg_head.seg_size ] = data;
      (*ppSeg)->seg_head.seg_size++;
