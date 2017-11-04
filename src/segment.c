@@ -37,17 +37,17 @@ del_segment ( Segment_t ** ppseg )
 }
 
 
-/** copies a segment to an other one */
+/** copies a segment header data */
 int
-cpy_segment ( Segment_t * dst, const Segment_t * src, size_t noData )
+cpy_segment ( Segment_t * dst, const Segment_t * src )
 {
 
-     if( !dst || !src )
+     if( !dst || !src || dst->seg_max_size < src->seg_max_size )
      {
 	  return -1;
      }
 
-     memcpy( dst, src, sizeof(Segment_t) + noData );
+     memcpy( dst, src, sizeof(Segment_t) );
 
      return 0;
 }
@@ -99,7 +99,7 @@ int
 cpy_segment_text( Segment_Text_t * dst, const Segment_Text_t * src )
 {
 
-     int ret = cpy_segment( (Segment_t*) dst, (Segment_t*) src, 0 );
+     int ret = cpy_segment( (Segment_t*) dst, (Segment_t*) src );
 
      if( ret )
      {
@@ -137,6 +137,27 @@ new_segment_data( size_t init_size )
 }
 
 
+int
+cpy_segment_data( Segment_Data_t *dst, Segment_Data_t *src )
+{
+
+     int ret = cpy_segment( (Segment_t*) dst, (Segment_t*) src);
+
+     if( ret )
+     {
+	  
+	  return ret;
+	  
+     }
+
+     memcpy( dst->seg_data_data, src->seg_data_data,
+	     src->seg_head.seg_size * sizeof( src->seg_data_data[0] ) );
+
+     return 0;
+     
+}
+
+
 
 Segment_Code_t *
 new_segment_code( size_t init_size )
@@ -155,6 +176,28 @@ new_segment_code( size_t init_size )
 
      return pseg;
 }
+
+
+int
+cpy_segment_code( Segment_Code_t *dst, Segment_Code_t *src )
+{
+
+     int ret = cpy_segment( (Segment_t*) dst, (Segment_t*) src);
+
+     if( ret )
+     {
+	  
+	  return ret;
+	  
+     }
+
+     memcpy( dst->seg_code_data, src->seg_code_data,
+	     src->seg_head.seg_size * sizeof( src->seg_code_data[0] ) );
+
+     return 0;
+     
+}
+
 
 
 
@@ -200,7 +243,6 @@ int
 segment_add_data( Segment_Data_t **ppSeg, int64_t data )
 {
 
-     // TODO add growth
      if( !ppSeg || !(*ppSeg) )
      {
 	  /* insane */
@@ -217,7 +259,7 @@ segment_add_data( Segment_Data_t **ppSeg, int64_t data )
 	       perror(__func__);
 	       return -1;
 	  }
-	  // FIXME copy screws up data... 
+
 	  cpy_segment_data( tmpSeg, *ppSeg );
 	  tmpSeg->seg_head.seg_max_size <<= 1;
 
@@ -229,6 +271,7 @@ segment_add_data( Segment_Data_t **ppSeg, int64_t data )
      (*ppSeg)->seg_data_data[ (*ppSeg)->seg_head.seg_size ] = data;
      (*ppSeg)->seg_head.seg_size++;
 
+
      return 0;
 
 }
@@ -238,12 +281,31 @@ int
 segment_add_code( Segment_Code_t **ppSeg, Semantic_t code )
 {
 
-     // TODO add growth
      if( !ppSeg || !(*ppSeg) )
      {
 	  /* insane */
 	  return -1;
      }
+
+     if( (*ppSeg)->seg_head.seg_size == (*ppSeg)->seg_head.seg_max_size )
+     {
+	  /* grow */
+	  Segment_Code_t *tmpSeg = new_segment_code( (*ppSeg)->seg_head
+						         .seg_max_size << 1 );
+	  if( ! tmpSeg )
+	  {
+	       perror(__func__);
+	       return -1;
+	  }
+
+	  cpy_segment_code( tmpSeg, *ppSeg );
+	  tmpSeg->seg_head.seg_max_size <<= 1;
+
+	  del_segment_code( ppSeg ); // free resources
+	  
+	  *ppSeg = tmpSeg;
+     }	  
+
 
      (*ppSeg)->seg_code_data[ (*ppSeg)->seg_head.seg_size ] = code;
      (*ppSeg)->seg_head.seg_size++;

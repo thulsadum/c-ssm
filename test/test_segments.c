@@ -237,8 +237,9 @@ test_segment_growth_data( void )
      mu_assert( "Invariant: max_size == 4",
 		pseg->seg_head.seg_max_size == 4 );
      
+
      mu_assert( "Effect: Item[0]",
-		1 == pseg->seg_data_data[0] );
+		pseg->seg_data_data[0] == 1 );
      mu_assert( "Effect: Item[1]",
 		2 == pseg->seg_data_data[1] );
      mu_assert( "Effect: Item[2]",
@@ -350,10 +351,10 @@ static char *
 all_tests ( void )
 {
      
-     mu_run_test( test_segment_lifecycle );
-     mu_run_test( test_segment_text );
-     mu_run_test( test_segment_data );
-     mu_run_test( test_segment_code );
+     mu_run_test_collection( test_segment_lifecycle );
+     mu_run_test_collection( test_segment_text );
+     mu_run_test_collection( test_segment_data );
+     mu_run_test_collection( test_segment_code );
      
      return 0;
 

@@ -27,27 +27,26 @@ typedef struct {
 
 typedef struct {
      Segment_t seg_head;
-     char     *seg_text_data[1];
+     char     *seg_text_data[];
 } Segment_Text_t;
 
 
 typedef struct {
      Segment_t  seg_head;
-     Semantic_t seg_code_data[1];
+     Semantic_t seg_code_data[];
 } Segment_Code_t;
 
 
 typedef struct {
      Segment_t seg_head;
-     int64_t   seg_data_data[1];
+     int64_t   seg_data_data[];
 } Segment_Data_t;
 
 
 
-Segment_t * new_segment ( size_t payload_size);
+Segment_t * new_segment ( size_t payload_size );
 void        del_segment ( Segment_t ** ppSeg );
-int         cpy_segment ( Segment_t * dst, const Segment_t * src,
-			  size_t payload_size );
+int         cpy_segment ( Segment_t * dst, const Segment_t * src );
 #define _del_segment(PPSEG) del_segment( (Segment_t**) PPSEG )
 #define _cpy_segment(PDST, PSRC, S) \
      cpy_segment( ((Segment_t*) PDST), ((Segment_t*) PSRC), S ) 
@@ -66,8 +65,7 @@ int segment_add_text ( Segment_Text_t **ppSeg, const char * text );
 
 Segment_Data_t * new_segment_data ( size_t i );
 #define del_segment_data(PPSEG) _del_segment(PPSEG) 
-#define cpy_segment_data(D, S) \
-     _cpy_segment( D, S, (S)->seg_head.seg_size * sizeof(int64_t) )
+int     cpy_segment_data(Segment_Data_t *dst, Segment_Data_t *src);
 int segment_add_data ( Segment_Data_t **ppSeg, int64_t data);
 #define segment_data_concat(SEG1, SEG2) \
      _segment_concat(Segment_Data_t*, SEG1, SEG2)
@@ -75,8 +73,7 @@ int segment_add_data ( Segment_Data_t **ppSeg, int64_t data);
 
 Segment_Code_t * new_segment_code ( size_t i );
 #define del_segment_code(PPSEG) _del_segment(PPSEG) 
-#define cpy_segment_code(D, S) \
-     _cpy_segment( D, S, (S)->seg_head.seg_size * sizeof(Semantic_t) )
+int     cpy_segment_code(Segment_Code_t *dst, Segment_Code_t *src);
 int segment_add_code ( Segment_Code_t **ppSeg, Semantic_t code);
 #define segment_code_concat(SEG1, SEG2) \
      _segment_concat(Segment_Code_t*, SEG1, SEG2)
