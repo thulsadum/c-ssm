@@ -6,7 +6,7 @@ LEX=flex
 # LFLAGS=
 LDFLAGS=
 
-TESTFILES=test_segments
+TESTFILES=test_segments test_symtab
 
 
 
@@ -17,6 +17,11 @@ test: $(TESTFILES)
 
 test_segments: test_segments.o ../src/segment.o
 	$(CC) -o $@ $^
+
+
+test_symtab: test_symtab.o ../src/symtab.o
+	$(CC) -o $@ $^
+
 
 clean:
 	-rm $(TESTFILES)
