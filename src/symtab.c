@@ -196,14 +196,12 @@ symbol_table_add( symbol_table_t **ppSymTab, const ste_key_t key, ste_value_t va
 	  return -1;
      }
 
-     int free_pos = (*ppSymTab)->st_size - (*ppSymTab)->st_load;
+     // FIXME implement propper double hashing
+     int free_pos = (*ppSymTab)->st_size; // for trying everything? //- (*ppSymTab)->st_load;
      size_t h;
      for(int i=0; i<free_pos; i++)
      {
-	  // FIXME this collision resolution does not work... (perhaps
-	  // size needs to be a prime?
 	  h = (ent.h1 + i*ent.h2) % (*ppSymTab)->st_size;
-	  printf("%s(%d): %lu\n", key, i, h);
 	  if( (*ppSymTab)->st_data[h].ste_key == NULL )
 	  {
 	       /* found a spot */
@@ -242,7 +240,7 @@ symbol_table_get( symbol_table_t *pSymTab, const ste_key_t key )
 
      size_t h;
      const char *candidate;
-     for(int i=0; i<pSymTab->st_load; i++)
+     for(int i=0; i<pSymTab->st_size; i++)
      {
 	  h = (ent.h1 + i*ent.h2) % (pSymTab)->st_size;
 	  candidate = (pSymTab)->st_data[h].ste_key;
