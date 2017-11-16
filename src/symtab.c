@@ -182,7 +182,7 @@ del_symbol_table_entry( symbol_table_entry_t ** ppSTE )
 int
 symbol_table_add( symbol_table_t **ppSymTab, const ste_key_t key, ste_value_t value)
 {
-     // TODO add growth and rehashing
+
      if( !ppSymTab || !(*ppSymTab) || !key )
      {
 	  /* insane */
@@ -190,6 +190,38 @@ symbol_table_add( symbol_table_t **ppSymTab, const ste_key_t key, ste_value_t va
 	  
      }
 
+
+     if( ST_LOAD_DEN * (*ppSymTab)->st_load == ST_LOAD_NUM * (*ppSymTab)->st_size )
+     {
+	  /* grow */
+	  symbol_table_t *tmp = new_symbol_table( (*ppSymTab)->st_size << 1 );
+
+	  if( !tmp )
+	  {
+
+	       return -1;
+
+	  }
+
+	  
+	  int ret = symbol_table_rehash( tmp, *ppSymTab );
+
+	  
+	  if( ret )
+	  {
+	       
+	       del_symbol_table( &tmp );
+	       return ret;
+
+	  }
+
+
+	  del_symbol_table( ppSymTab );
+	  *ppSymTab = tmp;
+	  
+     }
+
+     
      symbol_table_entry_t ent;
      if( !init_symbol_table_entry( &ent, key, value ) )
      {
@@ -256,5 +288,51 @@ symbol_table_get( symbol_table_t *pSymTab, const ste_key_t key )
 
 
      return NULL;
+     
+}
+
+
+
+int
+symbol_table_rehash( symbol_table_t *dst, symbol_table_t *src )
+{
+     /* NOTE assumes, that dst is empty */
+
+     if( !dst || !src || dst->st_load != 0 ||
+	 (ST_LOAD_NUM * dst->st_size <= ST_LOAD_DEN * src->st_load) )
+     {
+
+	  printf("INSANE: dst = %p, src = %p, dst->load = %lu, inv: %lu > %lu\n",
+		 (void*)dst, (void*)src, dst->st_load,
+		 ST_LOAD_NUM * dst->st_size, ST_LOAD_DEN * src->st_load);
+
+	  /* insane */
+	  return -1;
+
+     }
+
+     int ret = 0;
+     for( size_t i = 0; i < src->st_size; i++ )
+     {
+
+	  if( src->st_data[i].ste_key )
+	  {
+
+	       ret = symbol_table_add( &dst, src->st_data[i].ste_key,
+				       src->st_data[i].ste_value );
+
+	       if( ret )
+	       {
+
+		    return ret;
+
+	       }
+	       
+	  }
+	  
+     }
+
+
+     return 0;
      
 }

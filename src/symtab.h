@@ -5,6 +5,10 @@
 
 #include <stddef.h>
 
+
+#define ST_LOAD_NUM 4
+#define ST_LOAD_DEN 5
+
 typedef char * ste_key_t;
 typedef size_t ste_value_t;
 

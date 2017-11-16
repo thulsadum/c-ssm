@@ -54,7 +54,6 @@ test_symtab_entry_lifecycle( void )
      mu_assert( "value stored",
 		pSymTabEnt->ste_value == 42 );
 
-     printf("h1: %lu, h2: %lu\n", pSymTabEnt->h1, pSymTabEnt->h2 );
 
      del_symbol_table_entry( &pSymTabEnt );
 
@@ -148,6 +147,98 @@ test_symtab_access( void )
 }
 
 
+static char *
+test_symtab_rehash( void )
+{
+     symbol_table_t *pSymTabSrc = new_symbol_table( 10 );
+     symbol_table_t *pSymTabDst = new_symbol_table( 20 );
+
+     mu_assert( "Allocation",
+		!( !pSymTabSrc || !pSymTabDst) );
+
+     char key[] = { 0, 0 };
+     
+     for( int i = 1; i <= 5; i++ )
+     {
+
+	  key[0] = (char)( '0' + i );
+
+	  symbol_table_add( &pSymTabSrc, key, i );
+
+	  mu_assert( "Add Src ok.",
+		     symbol_table_get( pSymTabSrc, key ) &&
+		     *symbol_table_get( pSymTabSrc, key ) == i );
+	  
+     }
+
+     mu_assert( "Rehash success.",
+		! symbol_table_rehash( pSymTabDst, pSymTabSrc ) );
+
+     
+     mu_assert( "Rehashed load correct.",
+		pSymTabDst->st_load == pSymTabSrc->st_load );
+
+     
+     for( int i = 1; i <= 5; i++ )
+     {
+
+	  key[0] = (char)( '0' + i);
+
+	  mu_assert( "Dst contains key.",
+		     symbol_table_get( pSymTabDst, key ) );
+	  mu_assert( "Dst contains correct value.",
+		     *symbol_table_get( pSymTabDst, key ) == i );
+	  
+     }
+
+     del_symbol_table( &pSymTabSrc );
+     del_symbol_table( &pSymTabDst );
+
+     return 0;
+}
+
+
+static char *
+test_symtab_growth( void )
+{
+
+     symbol_table_t *pSymTab = new_symbol_table( ST_LOAD_DEN );
+
+     mu_assert( "Allocation",
+		pSymTab );
+
+     char key[] = {0,0};
+     int i;
+     for( i = 1; i <= ST_LOAD_NUM; i++ )
+     {
+	  key[0] = (char)('0' + i);
+	  mu_assert( "Added.",
+		     !symbol_table_add( &pSymTab, key, i) );
+	  mu_assert( "inv: st_size",
+		     pSymTab->st_size == ST_LOAD_DEN );
+     }
+
+     key[0] = (char)('0' + i);
+     mu_assert( "Added!",
+		!symbol_table_add( &pSymTab, key, i) );
+     
+     mu_assert( "Has grown.",
+		pSymTab->st_size > ST_LOAD_DEN );
+
+     for( i = 1; i <= ST_LOAD_NUM; i++)
+     {
+	  key[0] = (char)('0' + i);
+	  mu_assert( "Contains key.",
+		     symbol_table_get( pSymTab, key ) );
+	  mu_assert( "Contains correct value",
+		     *symbol_table_get( pSymTab, key ) == i );
+     }
+
+     del_symbol_table( &pSymTab );
+
+     return 0;
+}
+
 
 static char *
 all_tests( void )
@@ -156,6 +247,8 @@ all_tests( void )
      mu_run_test( test_symtab_lifecycle );
      mu_run_test( test_symtab_entry_lifecycle );
      mu_run_test( test_symtab_access );
+     mu_run_test( test_symtab_rehash );
+     mu_run_test( test_symtab_growth );
      
      return 0;
 
